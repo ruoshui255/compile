@@ -1,6 +1,11 @@
 from src.expr import *
-from src.main import Lox
-from src.scanner import TokenType, Token
+from src.token import TokenType, Token
+from src.utils import error_compiler
+
+
+def report_error(token, msg):
+    error_compiler(token, msg)
+    return ParseError()
 
 
 class ParseError(Exception):
@@ -8,15 +13,11 @@ class ParseError(Exception):
         pass
 
 
-def error(token, msg):
-    Lox.error_compiler(token, msg)
-    return ParseError()
-
-
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.current = 0
         self.tokens = tokens
+        self.error = False
 
     def expression(self):
         return self.equality()
@@ -84,7 +85,7 @@ class Parser:
                 self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
                 return ExprGrouping(expr)
             case _:
-                raise error(self.peek(), "Expect expression.")
+                raise error_compiler(self.peek(), "Expect expression.")
                 # print("undefined token type")
 
     def parse(self):
@@ -96,7 +97,7 @@ class Parser:
     def consume(self, expected_token_type, msg_error):
         if self.check(expected_token_type):
             return self.advance()
-        Lox.error_compiler(self.peek(), msg_error)
+        error_compiler(self.peek(), msg_error)
 
     def match(self, *types):
         for t in types:

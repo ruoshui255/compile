@@ -1,86 +1,65 @@
 import sys
-
 from src.interpreter import Interpreter
 from src.parser import Parser
-from src.scanner import TokenType, Token, Scanner
+from src.scanner import Scanner
 
 
 class Lox:
-    error_compile = False
-    error_run = False
-    interpreter = Interpreter()
+    def __init__(self):
+        self.scanner = None
+        self.parser = None
+        self.interpreter = None
 
-    @staticmethod
-    def error_compiler(t, msg):
-        match t:
-            case int():
-                Lox.report(t, "", msg)
-            case Token():
-                if t.type == TokenType.EOF:
-                    Lox.report(t, "at end", msg)
-                else:
-                    Lox.report(t.type, "at '" + t.lexeme + "'", msg)
-            case _:
-                print("not yet implement")
-
-    @staticmethod
-    def report(line, where, msg):
-        print(f"[line {line}] Error {where} : {msg}")
-        Lox.error_compile = True
-
-    @staticmethod
-    def main():
-        if len(sys.argv) < 2:
-            Lox.run_prompt()
-        elif len(sys.argv) == 2:
-            Lox.run_file(sys.argv[1])
-        else:
-            print("file too more")
-            exit(-1)
-
-    @staticmethod
-    def run_prompt():
+    def run_prompt(self):
         while True:
             try:
                 line = input("> ")
-                Lox.run(line)
-                Lox.error_compile = False
+                self.run(line)
             except EOFError:
                 print("exit")
                 exit(-1)
 
-    @staticmethod
-    def run_file(filename):
+    def run_file(self, filename):
         with open(filename, "r", encoding="utf-8") as f:
             src = f.read()
-            Lox.run(src)
+            self.run(src)
 
-        if Lox.error_compile:
+        if self.scanner.error:
+            return
+        if self.parser.error:
             exit(65)
-        if Lox.error_run:
+        if self.interpreter.error:
             exit(70)
 
-    @staticmethod
-    def run(src):
-        scanner = Scanner(src)
-        tokens = scanner.scan_tokens()
+    def run(self, src):
+        self.scanner = Scanner(src)
+        tokens = self.scanner.scan_tokens()
 
-        parser = Parser(tokens)
-        expression = parser.parse()
-
-        if Lox.error_compile:
+        if self.scanner.error:
             return
 
-        Lox.interpreter.interpreter(expression)
+        self.parser = Parser(tokens)
+        expression = self.parser.parse()
 
-    @classmethod
-    def error_runtime(cls, e):
-        print(f"{e} \n [line + {e.token.line}]")
-        Lox.error_run = True
+        if self.parser.error:
+            return
 
+        self.interpreter = Interpreter()
+        return self.interpreter.interpreter(expression)
+
+    def debug_token(self):
+        for t in self.scanner.tokens:
+            print(t)
 
 def main():
-    Lox.main()
+    lox = Lox()
+    if len(sys.argv) < 2:
+        lox.run_prompt()
+    elif len(sys.argv) == 2:
+        lox.run_file(sys.argv[0])
+    else:
+        print("file too more")
+        exit(-1)
 
 
 if __name__ == '__main__':

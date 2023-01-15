@@ -1,36 +1,37 @@
 from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping
-from src.main import Lox
-from src.scanner import TokenType
+from src.token import TokenType
 
 
 class RuntimeExcept(RuntimeError):
     def __init__(self, token, msg):
-        super.__init__(msg)
+        super().__init__(msg)
         self.token = token
 
 
 class Interpreter:
     def __init__(self):
-        pass
+        self.error = False
 
     def interpreter(self, expression):
         try:
             value = self.evaluate(expression)
-            print(str(value))
+            result = value
+            print(result)
+            return result
         except RuntimeExcept as e:
-            Lox.error_runtime(e)
+            self.error_runtime(e)
 
     @staticmethod
-    def visit_literal_expr(expr: ExprLiteral):
+    def visit_expr_literal(expr: ExprLiteral):
         return expr.value
 
-    def visit_grouping_expr(self, expr: ExprGrouping):
+    def visit_expr_grouping(self, expr: ExprGrouping):
         return self.evaluate(expr.expression)
 
     def evaluate(self, expr):
         return expr.accept(self)
 
-    def visit_unary_expr(self, expr: ExprUnary):
+    def visit_expr_unary(self, expr: ExprUnary):
         right = self.evaluate(expr.right)
 
         match expr.operator.type:
@@ -53,7 +54,7 @@ class Interpreter:
 
         return True
 
-    def visit_binary_expr(self, expr: ExprBinary):
+    def visit_expr_binary(self, expr: ExprBinary):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
@@ -68,8 +69,8 @@ class Interpreter:
                 self.check_number_operands(expr.operator, left, right)
                 return left * right
             case TokenType.PLUS:
-                number = isinstance(left, int) and isinstance(left, float) and isinstance(right, int) and isinstance(right, float)
-                string = isinstance(left, str) and isinstance(right, str)
+                number = isinstance(left, int) or isinstance(left, float) or isinstance(right, int) or isinstance(right, float)
+                string = isinstance(left, str) or isinstance(right, str)
                 if number or string:
                     return left + right
                 raise RuntimeExcept(expr.operator, "Operands must be two numbers or two strings.")
@@ -114,4 +115,8 @@ class Interpreter:
         if isinstance(right, float) or isinstance(right, float):
             return
         raise RuntimeExcept(operator, "Operand must be a number")
+
+    def error_runtime(self, e):
+        print(f"{e} \n [line + {e.token.line}]")
+        self.error = True
 
