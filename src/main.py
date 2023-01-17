@@ -1,14 +1,16 @@
 import sys
+
 from src.interpreter import Interpreter
 from src.parser import Parser
 from src.scanner import Scanner
+from src.utils import log, log_error
 
 
 class Lox:
     def __init__(self):
         self.scanner = None
         self.parser = None
-        self.interpreter = None
+        self.interpreter = Interpreter()
 
     def run_prompt(self):
         while True:
@@ -39,26 +41,27 @@ class Lox:
             return
 
         self.parser = Parser(tokens)
-        expression = self.parser.parse()
+        statements = self.parser.parse()
 
+        log(f"parser error {self.parser.error}")
         if self.parser.error:
             return
 
-        self.interpreter = Interpreter()
-        return self.interpreter.interpreter(expression)
+        self.interpreter.interpreter(statements)
 
     def debug_token(self):
         for t in self.scanner.tokens:
-            print(t)
+            print("debug", t)
+
 
 def main():
     lox = Lox()
     if len(sys.argv) < 2:
         lox.run_prompt()
     elif len(sys.argv) == 2:
-        lox.run_file(sys.argv[0])
+        lox.run_file(sys.argv[1])
     else:
-        print("file too more")
+        log_error("file too more")
         exit(-1)
 
 

@@ -1,8 +1,25 @@
+from io import StringIO
+from contextlib import redirect_stdout
+
 from src.main import Lox
 
 
-def test_add():
-    lox = Lox()
+def helper(res: str):
+    tmp = res.split()[0]
+
+    try:
+        return float(tmp)
+    except ValueError as e:
+        if tmp == "True":
+            return True
+        elif tmp == "False":
+            return False
+        else:
+            print(f"res: <{res}> tmp: <{tmp}> : not support")
+            exit(-1)
+
+
+def test_arithmetic():
 
     test_cases = [
         ("1.0 + 2", 3),
@@ -14,14 +31,17 @@ def test_add():
         ("!2", False),
     ]
 
+    lox = Lox()
     for case in test_cases:
         src, expected = case
-        result = lox.run(src)
-        assert result == expected, f"src <{src}> res: <{result}> expect <{expected}>"
+        with redirect_stdout(StringIO()) as f:
+            lox.run(f"print({src});")
+        result = f.getvalue()
+        assert helper(result) == expected, f"src <{src}> res: <{result}> expect <{expected}>"
 
 
 def main():
-    test_add()
+    test_arithmetic()
 
 
 if __name__ == '__main__':

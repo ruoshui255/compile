@@ -1,11 +1,9 @@
+import sys
+
 from src.expr import *
+from src.statement import StmtExpression, StmtPrint, StmtVar, StmtBlock
 from src.token import TokenType, Token
-from src.utils import error_compiler
-
-
-def report_error(token, msg):
-    error_compiler(token, msg)
-    return ParseError()
+from src.utils import error_compiler, log_error, log
 
 
 class ParseError(Exception):
@@ -20,7 +18,72 @@ class Parser:
         self.error = False
 
     def expression(self):
-        return self.equality()
+        return self.assignment()
+
+    def declaration(self):
+        try:
+            if self.match(TokenType.VAR):
+                return self.var_declaration()
+            else:
+                return self.statement()
+        except ParseError as e:
+            self.synchronize()
+            log("After Synchronize:", self.peek())
+
+    def var_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+
+        initializer = None
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return StmtVar(name, initializer)
+
+    def statement(self):
+        if self.match(TokenType.PRINT):
+            return self.print_statement()
+
+        if self.match(TokenType.LEFT_BRACE):
+            return StmtBlock(self.block())
+
+        return self.expression_statement()
+
+    def print_statement(self):
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' before print")
+        value = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after print")
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value")
+        return StmtPrint(value)
+
+    def expression_statement(self):
+        expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value")
+        return StmtExpression(expr)
+
+    def block(self):
+        statements = []
+
+        while (not self.check(TokenType.RIGHT_BRACE)) and (not self.at_end()):
+            statements.append(self.declaration())
+
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
+
+    def assignment(self):
+        expr = self.equality()
+
+        if self.match(TokenType.EQUAL):
+            equals = self.previous()
+            value = self.assignment()
+
+            if isinstance(expr, ExprVariable):
+                name: Token = expr.name
+                return ExprAssign(name, value)
+
+            self.report_error(equals, "Invalid assignment target.")
+
+        return expr
 
     def equality(self):
         expr = self.comparison()
@@ -71,7 +134,8 @@ class Parser:
         return self.primary()
 
     def primary(self):
-        match self.advance().type:
+        t = self.advance()
+        match t.type:
             case TokenType.FALSE:
                 return ExprLiteral(False)
             case TokenType.TRUE:
@@ -84,20 +148,23 @@ class Parser:
                 expr = self.expression()
                 self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
                 return ExprGrouping(expr)
+            case TokenType.IDENTIFIER:
+                return ExprVariable(self.previous())
             case _:
-                raise error_compiler(self.peek(), "Expect expression.")
+                raise self.report_error(self.peek(), "Expect expression.")
                 # print("undefined token type")
 
     def parse(self):
-        try:
-            return self.expression()
-        except ParseError as e:
-            return
+        statements = []
+        while not self.at_end():
+            statements.append(self.declaration())
+
+        return statements
 
     def consume(self, expected_token_type, msg_error):
         if self.check(expected_token_type):
             return self.advance()
-        error_compiler(self.peek(), msg_error)
+        raise self.report_error(self.peek(), msg_error)
 
     def match(self, *types):
         for t in types:
@@ -118,18 +185,25 @@ class Parser:
         return self.previous()
 
     def at_end(self):
-        return self.current == len(self.tokens)
+        return self.current == len(self.tokens) - 1
 
     def peek(self):
+        # print(f"debug: cur {self.current}, len {len(self.tokens)}")
         return self.tokens[self.current]
 
     def previous(self) -> Token:
         return self.tokens[self.current - 1]
 
+    def report_error(self, token, msg):
+        self.error = True
+        error_compiler(token, msg)
+        return ParseError()
+
     def synchronize(self):
         self.advance()
 
         while not self.at_end():
+            log_error("synchronize:", self.previous())
             if self.previous().type == TokenType.SEMICOLON:
                 return
 

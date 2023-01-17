@@ -1,8 +1,10 @@
+import sys
+
 from src.token import TokenType, Token
 
 
 def report(line, where, msg):
-    print(f"[line {line}] Error {where} : {msg}")
+    log_error(f"[line {line}] Error {where} : {msg}")
 
 
 def error_compiler(t, msg):
@@ -15,6 +17,16 @@ def error_compiler(t, msg):
             else:
                 report(t.line, "at '" + t.lexeme + "'", msg)
         case _:
-            print("not yet implement")
+            log_error("not yet implement")
 
 
+def log_error(*args, **kwargs):
+    print("\033[;33m[Error]\033[;0m", *args, **kwargs, file=sys.stderr)
+
+
+def log(*args, **kwargs):
+    debug = False
+    if debug:
+        log_error(*args, **kwargs)
+    else:
+        pass

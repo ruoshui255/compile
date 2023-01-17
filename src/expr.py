@@ -1,3 +1,12 @@
+class ExprAssign:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visit_expr_assign(self)
+
+
 class ExprBinary:
     def __init__(self, left, operator, right):
         self.left = left
@@ -31,5 +40,13 @@ class ExprUnary:
 
     def accept(self, visitor):
         return visitor.visit_expr_unary(self)
+
+
+class ExprVariable:
+    def __init__(self, name):
+        self.name = name
+
+    def accept(self, visitor):
+        return visitor.visit_expr_variable(self)
 
 
