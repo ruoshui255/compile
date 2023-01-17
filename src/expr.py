@@ -33,6 +33,16 @@ class ExprLiteral:
         return visitor.visit_expr_literal(self)
 
 
+class ExprLogical:
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def accept(self, visitor):
+        return visitor.visit_expr_logical(self)
+
+
 class ExprUnary:
     def __init__(self, operator, right):
         self.operator = operator

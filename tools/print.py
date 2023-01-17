@@ -43,15 +43,18 @@ def main():
         "Expr Binary   : left, operator, right",
         "Expr Grouping : expression",
         "Expr Literal  : value",
+        "Expr Logical  : left, operator, right",
         "Expr Unary    : operator, right",
         "Expr Variable : name"
     ])
 
-    define_AST(output_folder, "src/statement.py",[
+    define_AST(output_folder, "src/statement.py", [
         "Stmt Block      : statements",
         "Stmt Expression : expression",
+        "Stmt If         : condition, then_branch, else_branch",
         "Stmt Print      : expression",
         "Stmt Var        : name, initializer",
+        "Stmt While      : condition, body",
     ])
 
 

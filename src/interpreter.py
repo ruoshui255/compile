@@ -1,7 +1,7 @@
 from src.environment import Environment
-from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign
+from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign, ExprLogical
 from src.runtime_error import RuntimeExcept
-from src.statement import StmtBlock
+from src.statement import StmtBlock, StmtIf, StmtWhile
 from src.token import TokenType
 from src.utils import log, log_error
 
@@ -40,12 +40,24 @@ class Interpreter:
         self.execute_block(stmt.statements, Environment(self.environment))
         return
 
+    def visit_stmt_if(self, stmt: StmtIf):
+        if self.truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.then_branch)
+        elif stmt.else_branch is not None:
+            self.execute(stmt.else_branch)
+
+        return
+
     def visit_stmt_expression(self, stmt):
         self.evaluate(stmt.expression)
 
     def visit_stmt_print(self, stmt):
         value = self.evaluate(stmt.expression)
         print(value)
+
+    def visit_stmt_while(self, stmt: StmtWhile):
+        while self.truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
 
     def visit_stmt_var(self, stmt):
         value = None
@@ -88,6 +100,22 @@ class Interpreter:
         log(f"envir {self.environment.values}")
         return self.environment.get(expr.name)
 
+    def visit_expr_logical(self, expr: ExprLogical):
+        left = self.evaluate(expr.left)
+
+        if expr.operator.type == TokenType.OR:
+            if self.truthy(left):
+                return left
+            else:
+                return self.evaluate(expr.right)
+        elif expr.operator.type == TokenType.AND:
+            if not self.truthy(left):
+                return left
+            else:
+                return self.evaluate(expr.right)
+        else:
+            log_error("Error operator:", expr.operator)
+
     def visit_expr_binary(self, expr: ExprBinary):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
@@ -103,7 +131,8 @@ class Interpreter:
                 self.check_number_operands(expr.operator, left, right)
                 return left * right
             case TokenType.PLUS:
-                number = isinstance(left, int) or isinstance(left, float) or isinstance(right, int) or isinstance(right, float)
+                number = isinstance(left, int) or isinstance(left, float) or isinstance(right, int) or isinstance(right,
+                                                                                                                  float)
                 string = isinstance(left, str) or isinstance(right, str)
                 if number or string:
                     return left + right
@@ -163,4 +192,3 @@ class Interpreter:
     def error_runtime(self, e):
         log_error(f"[line {e.token.line}] {e} ")
         self.error = True
-
