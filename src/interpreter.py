@@ -1,7 +1,8 @@
+from src.callable import Callable, Clock, Function
 from src.environment import Environment
-from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign, ExprLogical
+from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign, ExprLogical, ExprCall
 from src.runtime_error import RuntimeExcept
-from src.statement import StmtBlock, StmtIf, StmtWhile
+from src.statement import StmtBlock, StmtIf, StmtWhile, StmtFunction
 from src.token import TokenType
 from src.utils import log, log_error
 
@@ -9,7 +10,10 @@ from src.utils import log, log_error
 class Interpreter:
     def __init__(self):
         self.error = False
-        self.environment = Environment()
+        self.globals = Environment()
+        self.environment = self.globals
+
+        self.globals.define("todo", Clock())
 
     def interpreter(self, statements):
         try:
@@ -20,7 +24,7 @@ class Interpreter:
             # print(result)
             # return result
         except RuntimeExcept as e:
-            self.error_runtime(e)
+            self.report_error(e)
 
     # statement execute
     def execute(self, stmt):
@@ -47,6 +51,11 @@ class Interpreter:
             self.execute(stmt.else_branch)
 
         return
+
+    def visit_stmt_function(self, stmt: StmtFunction):
+        function = Function(stmt)
+        self.environment.define(stmt.name.lexeme, function)
+        return None
 
     def visit_stmt_expression(self, stmt):
         self.evaluate(stmt.expression)
@@ -115,6 +124,23 @@ class Interpreter:
                 return self.evaluate(expr.right)
         else:
             log_error("Error operator:", expr.operator)
+
+    def visit_expr_call(self, expr: ExprCall):
+        callee = self.evaluate(expr.callee)
+
+        arguments = []
+        for arg in expr.arguments:
+            arguments.append(self.evaluate(arg))
+
+        if not isinstance(callee, Callable):
+            raise RuntimeExcept(expr.paren, "Can only call functions and classes.")
+
+        function: Callable = callee
+        if len(arguments) != function.arity():
+            raise RuntimeExcept(expr.paren,
+                                "Expected " + function.arity() + " arguments but got " + len(arguments) + ".")
+
+        return function.call(self, arguments)
 
     def visit_expr_binary(self, expr: ExprBinary):
         left = self.evaluate(expr.left)
@@ -189,6 +215,6 @@ class Interpreter:
             return
         raise RuntimeExcept(operator, "Operand must be a number")
 
-    def error_runtime(self, e):
+    def report_error(self, e):
         log_error(f"[line {e.token.line}] {e} ")
         self.error = True

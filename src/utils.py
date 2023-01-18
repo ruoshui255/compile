@@ -3,6 +3,10 @@ import sys
 from src.token import TokenType, Token
 
 
+def log_error(*args, **kwargs):
+    print("\033[;33m[Error]\033[;0m", *args, **kwargs, file=sys.stderr)
+
+
 def report(line, where, msg):
     log_error(f"[line {line}] Error {where} : {msg}")
 
@@ -18,10 +22,6 @@ def error_compiler(t, msg):
                 report(t.line, "at '" + t.lexeme + "'", msg)
         case _:
             log_error("not yet implement")
-
-
-def log_error(*args, **kwargs):
-    print("\033[;33m[Error]\033[;0m", *args, **kwargs, file=sys.stderr)
 
 
 def log(*args, **kwargs):

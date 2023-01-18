@@ -17,6 +17,16 @@ class ExprBinary:
         return visitor.visit_expr_binary(self)
 
 
+class ExprCall:
+    def __init__(self, callee, paren, arguments):
+        self.callee = callee
+        self.paren = paren
+        self.arguments = arguments
+
+    def accept(self, visitor):
+        return visitor.visit_expr_call(self)
+
+
 class ExprGrouping:
     def __init__(self, expression):
         self.expression = expression

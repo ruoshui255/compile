@@ -1,3 +1,6 @@
+from src.token import Token
+
+
 class StmtBlock:
     def __init__(self, statements):
         self.statements = statements
@@ -12,6 +15,16 @@ class StmtExpression:
 
     def accept(self, visitor):
         return visitor.visit_stmt_expression(self)
+
+
+class StmtFunction:
+    def __init__(self, name: Token, params, body):
+        self.name = name
+        self.params = params
+        self.body = body
+
+    def accept(self, visitor):
+        return visitor.visit_stmt_function(self)
 
 
 class StmtIf:

@@ -41,6 +41,7 @@ def main():
     define_AST(output_folder, "src/expr.py", [
         "Expr Assign   : name, value",
         "Expr Binary   : left, operator, right",
+        "Expr Call     : callee, paren, arguments",
         "Expr Grouping : expression",
         "Expr Literal  : value",
         "Expr Logical  : left, operator, right",
@@ -51,6 +52,7 @@ def main():
     define_AST(output_folder, "src/statement.py", [
         "Stmt Block      : statements",
         "Stmt Expression : expression",
+        "Stmt Function   : name, params, body",
         "Stmt If         : condition, then_branch, else_branch",
         "Stmt Print      : expression",
         "Stmt Var        : name, initializer",
