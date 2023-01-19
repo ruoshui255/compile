@@ -29,15 +29,16 @@ class Clock(Callable):
 
 
 class Function(Callable):
-    def __init__(self, declaration: StmtFunction):
+    def __init__(self, declaration: StmtFunction, closure: Environment):
         super().__init__()
         self.declaration = declaration
+        self.closure = closure
 
     def arity(self):
         return len(self.declaration.params)
 
     def call(self, interpreter, arguments):
-        environment = Environment(interpreter.globals)
+        environment = Environment(self.closure)
         for index, arg in enumerate(self.declaration.params):
             environment.define(arg.lexeme, arguments[index])
 
