@@ -1,6 +1,7 @@
 import time
 
 from src.environment import Environment
+from src.runtime_error import Return
 from src.statement import StmtFunction
 
 
@@ -40,7 +41,11 @@ class Function(Callable):
         for index, arg in enumerate(self.declaration.params):
             environment.define(arg.lexeme, arguments[index])
 
-        interpreter.execute_block(self.declaration.body, environment)
+        try:
+            interpreter.execute_block(self.declaration.body, environment)
+        except Return as e:
+            return e.value
+
         return None
 
     def __str__(self):

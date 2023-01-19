@@ -1,8 +1,8 @@
 from src.callable import Callable, Clock, Function
 from src.environment import Environment
 from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign, ExprLogical, ExprCall
-from src.runtime_error import RuntimeExcept
-from src.statement import StmtBlock, StmtIf, StmtWhile, StmtFunction
+from src.runtime_error import RuntimeException, Return
+from src.statement import StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn
 from src.token import TokenType
 from src.utils import log, log_error
 
@@ -13,7 +13,7 @@ class Interpreter:
         self.globals = Environment()
         self.environment = self.globals
 
-        self.globals.define("todo", Clock())
+        self.globals.define("clock", Clock())
 
     def interpreter(self, statements):
         try:
@@ -23,7 +23,7 @@ class Interpreter:
             # result = value
             # print(result)
             # return result
-        except RuntimeExcept as e:
+        except RuntimeException as e:
             self.report_error(e)
 
     # statement execute
@@ -59,6 +59,13 @@ class Interpreter:
 
     def visit_stmt_expression(self, stmt):
         self.evaluate(stmt.expression)
+
+    def visit_stmt_return(self, stmt: StmtReturn):
+        value = None
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+
+        raise Return(value)
 
     def visit_stmt_print(self, stmt):
         value = self.evaluate(stmt.expression)
@@ -133,12 +140,12 @@ class Interpreter:
             arguments.append(self.evaluate(arg))
 
         if not isinstance(callee, Callable):
-            raise RuntimeExcept(expr.paren, "Can only call functions and classes.")
+            raise RuntimeException(expr.paren, "Can only call functions and classes.")
 
         function: Callable = callee
         if len(arguments) != function.arity():
-            raise RuntimeExcept(expr.paren,
-                                "Expected " + function.arity() + " arguments but got " + len(arguments) + ".")
+            raise RuntimeException(expr.paren,
+                                   "Expected " + function.arity() + " arguments but got " + len(arguments) + ".")
 
         return function.call(self, arguments)
 
@@ -162,7 +169,7 @@ class Interpreter:
                 string = isinstance(left, str) or isinstance(right, str)
                 if number or string:
                     return left + right
-                raise RuntimeExcept(expr.operator, "Operands must be two numbers or two strings.")
+                raise RuntimeException(expr.operator, "Operands must be two numbers or two strings.")
             case TokenType.GREATER:
                 self.check_number_operands(expr.operator, left, right)
                 return left > right
@@ -205,7 +212,7 @@ class Interpreter:
     def check_number_operand(operator, operand):
         if isinstance(operand, int) or isinstance(operand, float):
             return
-        raise RuntimeExcept(operator, "Operand must be a number")
+        raise RuntimeException(operator, "Operand must be a number")
 
     @staticmethod
     def check_number_operands(operator, left, right):
@@ -213,7 +220,7 @@ class Interpreter:
             return
         if isinstance(right, float) or isinstance(right, float):
             return
-        raise RuntimeExcept(operator, "Operand must be a number")
+        raise RuntimeException(operator, "Operand must be a number")
 
     def report_error(self, e):
         log_error(f"[line {e.token.line}] {e} ")

@@ -1,6 +1,3 @@
-from src.token import Token
-
-
 class StmtBlock:
     def __init__(self, statements):
         self.statements = statements
@@ -18,7 +15,7 @@ class StmtExpression:
 
 
 class StmtFunction:
-    def __init__(self, name: Token, params, body):
+    def __init__(self, name, params, body):
         self.name = name
         self.params = params
         self.body = body
@@ -43,6 +40,15 @@ class StmtPrint:
 
     def accept(self, visitor):
         return visitor.visit_stmt_print(self)
+
+
+class StmtReturn:
+    def __init__(self, keyword, value):
+        self.keyword = keyword
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visit_stmt_return(self)
 
 
 class StmtVar:

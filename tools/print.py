@@ -55,6 +55,7 @@ def main():
         "Stmt Function   : name, params, body",
         "Stmt If         : condition, then_branch, else_branch",
         "Stmt Print      : expression",
+        "Stmt Return     : keyword, value",
         "Stmt Var        : name, initializer",
         "Stmt While      : condition, body",
     ])

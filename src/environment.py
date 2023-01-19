@@ -1,4 +1,4 @@
-from src.runtime_error import RuntimeExcept
+from src.runtime_error import RuntimeException
 from src.token import Token
 from src.utils import log
 
@@ -20,7 +20,7 @@ class Environment:
         if self.enclosing is not None:
             return self.enclosing.get(token)
 
-        raise RuntimeExcept(token, "Undefined variable '" + name + "'.")
+        raise RuntimeException(token, "Undefined variable '" + name + "'.")
 
     def assign(self, token: Token, value):
         name = token.lexeme
@@ -32,4 +32,4 @@ class Environment:
             self.enclosing.assign(token, value)
             return
 
-        raise RuntimeExcept(token, "Undefined variable '" + name + "'.")
+        raise RuntimeException(token, "Undefined variable '" + name + "'.")

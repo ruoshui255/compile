@@ -1,7 +1,7 @@
 import sys
 
 from src.expr import *
-from src.statement import StmtExpression, StmtPrint, StmtVar, StmtBlock, StmtIf, StmtWhile, StmtFunction
+from src.statement import StmtExpression, StmtPrint, StmtVar, StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn
 from src.token import TokenType, Token
 from src.utils import error_compiler, log_error, log
 
@@ -51,6 +51,9 @@ class Parser:
 
         if self.match(TokenType.PRINT):
             return self.print_statement()
+
+        if self.match(TokenType.RETURN):
+            return self.return_statement()
 
         if self.match(TokenType.WHILE):
             return self.while_statement()
@@ -118,6 +121,16 @@ class Parser:
 
         return StmtIf(condition, then_statement, else_statement)
 
+    def return_statement(self):
+        keyword = self.previous()
+        value = None
+
+        if not self.check(TokenType.SEMICOLON):
+            value = self.expression()
+
+        self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
+        return StmtReturn(keyword, value)
+
     def print_statement(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' before print")
         value = self.expression()
@@ -126,18 +139,18 @@ class Parser:
         return StmtPrint(value)
 
     def function_statement(self, kind: str):
-        name = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name .")
+        name = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
         self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
 
         parameters = []
         if not self.check(TokenType.RIGHT_PAREN):
             if len(parameters) >= 255:
-                self.report_error(self.peek(), "Can't have more than 255 parameters .")
+                self.report_error(self.peek(), "Can't have more than 255 parameters.")
             parameters.append(self.consume(TokenType.IDENTIFIER, "Expect parameter name."))
 
             while self.match(TokenType.COMMA):
                 if len(parameters) >= 255:
-                    self.report_error(self.peek(), "Can't have more than 255 parameters .")
+                    self.report_error(self.peek(), "Can't have more than 255 parameters.")
                 parameters.append(self.consume(TokenType.IDENTIFIER, "Expect parameter name."))
 
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
