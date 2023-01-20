@@ -2,6 +2,7 @@ import sys
 
 from src.interpreter import Interpreter
 from src.parser import Parser
+from src.resolver import Resolver
 from src.scanner import Scanner
 from src.utils import log, log_error
 
@@ -45,6 +46,11 @@ class Lox:
 
         log(f"parser error {self.parser.error}")
         if self.parser.error:
+            return
+
+        resolver = Resolver(self.interpreter)
+        resolver.resolve(statements)
+        if resolver.error:
             return
 
         self.interpreter.interpreter(statements)

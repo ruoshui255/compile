@@ -1,9 +1,9 @@
 from src.callable import Callable, Clock, Function
 from src.environment import Environment
-from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign, ExprLogical, ExprCall
+from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign, ExprLogical, ExprCall, ExprVariable
 from src.runtime_error import RuntimeException, Return
 from src.statement import StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn
-from src.token import TokenType
+from src.token import TokenType, Token
 from src.utils import log, log_error
 
 
@@ -11,6 +11,7 @@ class Interpreter:
     def __init__(self):
         self.error = False
         self.globals = Environment()
+        self.locals = {}
         self.environment = self.globals
 
         self.globals.define("clock", Clock())
@@ -29,6 +30,9 @@ class Interpreter:
     # statement execute
     def execute(self, stmt):
         stmt.accept(self)
+
+    def resolve(self, expr, depth: int):
+        self.locals[expr] = depth
 
     def execute_block(self, statements, environment: Environment):
         previous = self.environment
@@ -69,7 +73,7 @@ class Interpreter:
 
     def visit_stmt_print(self, stmt):
         value = self.evaluate(stmt.expression)
-        print(value)
+        print(self.to_string(value))
 
     def visit_stmt_while(self, stmt: StmtWhile):
         while self.truthy(self.evaluate(stmt.condition)):
@@ -95,7 +99,11 @@ class Interpreter:
 
     def visit_expr_assign(self, expr: ExprAssign):
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+        distance = self.locals.get(expr, None)
+        if distance is not None:
+            self.environment.assign_at(distance, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
         log("visit expr assign {}".format(value))
         return value
 
@@ -112,9 +120,8 @@ class Interpreter:
             case _:
                 log_error(f"not yet implement in unary: {expr.operator}")
 
-    def visit_expr_variable(self, expr):
-        log(f"envir {self.environment.values}")
-        return self.environment.get(expr.name)
+    def visit_expr_variable(self, expr: ExprVariable):
+        return self.lookup_variable(expr.name, expr)
 
     def visit_expr_logical(self, expr: ExprLogical):
         left = self.evaluate(expr.left)
@@ -225,3 +232,19 @@ class Interpreter:
     def report_error(self, e):
         log_error(f"[line {e.token.line}] {e} ")
         self.error = True
+
+    @staticmethod
+    def to_string(value):
+        if value is None:
+            return "nil"
+        else:
+            return str(value)
+
+    def lookup_variable(self, name: Token, expr):
+        distance = self.locals.get(expr, None)
+        if distance is not None:
+            return self.environment.get_at(distance, name.lexeme)
+        else:
+            return self.globals.get(name)
+
+        pass
