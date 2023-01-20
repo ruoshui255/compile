@@ -4,7 +4,8 @@ from src.token import TokenType, Token
 
 
 def log_error(*args, **kwargs):
-    print("\033[;33m[Error]\033[;0m", *args, **kwargs, file=sys.stderr)
+    print(*args, **kwargs, file=sys.stderr)
+    # print("\033[;33m[Error]\033[;0m", *args, **kwargs, file=sys.stderr)
 
 
 def report(line, where, msg):

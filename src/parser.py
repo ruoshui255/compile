@@ -150,7 +150,7 @@ class Parser:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' before print")
         value = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after print")
-        self.consume(TokenType.SEMICOLON, "Expect ';' after value")
+        self.consume(TokenType.SEMICOLON, "Expect ';' after print expression")
         return StmtPrint(value)
 
     def function_statement(self, kind: str):
@@ -372,7 +372,7 @@ class Parser:
         self.advance()
 
         while not self.at_end():
-            log_error("synchronize:", self.previous())
+            log("synchronize:", self.previous())
             if self.previous().type == TokenType.SEMICOLON:
                 return
 

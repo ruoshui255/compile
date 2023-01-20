@@ -9,6 +9,7 @@ from src.utils import error_compiler
 class FunctionType(Enum):
     NULL = auto()
     Function = auto()
+    Method = auto
 
 
 class Resolver:
@@ -90,6 +91,11 @@ class Resolver:
     def visit_stmt_class(self, stmt: StmtClass):
         self.declare(stmt.name)
         self.define(stmt.name)
+
+        for method in stmt.methods:
+            declaration = FunctionType.Method
+            self.resolve_function(method, declaration)
+
         return None
 
     def visit_stmt_block(self, stmt: StmtBlock):

@@ -46,7 +46,13 @@ class Interpreter:
 
     def visit_stmt_class(self, stmt: StmtClass):
         self.environment.define(stmt.name.lexeme, None)
-        klass = Class(stmt.name.lexeme)
+
+        methods = {}
+        for method in stmt.methods:
+            function = Function(method, self.environment)
+            methods[method.name.lexeme] = function
+
+        klass = Class(stmt.name.lexeme, methods)
         self.environment.assign(stmt.name, klass)
         return None
 

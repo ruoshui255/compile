@@ -53,8 +53,9 @@ class Function(Callable):
 
 
 class Class(Callable):
-    def __init__(self, name: str):
+    def __init__(self, name: str, methods: dict[str, Function]):
         self.name = name
+        self.methods = methods
 
     def arity(self):
         return 0
@@ -62,6 +63,10 @@ class Class(Callable):
     def call(self, interpreter, arguments):
         instance = Instance(self)
         return instance
+
+    def find_method(self, name: str):
+        res = self.methods.get(name, None)
+        return res
 
     def __str__(self):
         return self.name
@@ -78,6 +83,10 @@ class Instance:
     def get(self, name: Token):
         if name.lexeme in self.fields:
             return self.fields.get(name.lexeme)
+
+        method = self.klass.find_method(name.lexeme)
+        if method is not None:
+            return method
 
         raise RuntimeException(name, f"Undefined property '{name.lexeme}'.")
 
