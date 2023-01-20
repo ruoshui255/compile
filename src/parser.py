@@ -1,7 +1,8 @@
 import sys
 
 from src.expr import *
-from src.statement import StmtExpression, StmtPrint, StmtVar, StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn
+from src.statement import StmtExpression, StmtPrint, StmtVar, StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn, \
+    StmtClass
 from src.token import TokenType, Token
 from src.utils import error_compiler, log_error, log
 
@@ -22,6 +23,8 @@ class Parser:
 
     def declaration(self):
         try:
+            if self.match(TokenType.CLASS):
+                return self.class_declaration()
             if self.match(TokenType.FUN):
                 return self.function_statement("function")
             elif self.match(TokenType.VAR):
@@ -31,6 +34,18 @@ class Parser:
         except ParseError as e:
             self.synchronize()
             log("After Synchronize:", self.peek())
+
+    def class_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect class name.")
+        self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.")
+
+        methods : list[StmtFunction] = []
+        while not self.check(TokenType.RIGHT_BRACE) and not self.at_end():
+            methods.append(self.function_statement("method"))
+
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' before class body.")
+
+        return StmtClass(name, methods)
 
     def var_declaration(self):
         name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")

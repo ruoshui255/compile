@@ -1,8 +1,8 @@
-from src.callable import Callable, Clock, Function
+from src.callable import Callable, Clock, Function, Class
 from src.environment import Environment
 from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign, ExprLogical, ExprCall, ExprVariable
 from src.runtime_error import RuntimeException, Return
-from src.statement import StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn
+from src.statement import StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn, StmtClass
 from src.token import TokenType, Token
 from src.utils import log, log_error
 
@@ -43,6 +43,12 @@ class Interpreter:
                 self.execute(stmt)
         finally:
             self.environment = previous
+
+    def visit_stmt_class(self, stmt: StmtClass):
+        self.environment.define(stmt.name.lexeme, None)
+        klass = Class(stmt.name.lexeme)
+        self.environment.assign(stmt.name, klass)
+        return None
 
     def visit_stmt_block(self, stmt: StmtBlock):
         self.execute_block(stmt.statements, Environment(self.environment))

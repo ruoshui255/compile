@@ -51,3 +51,11 @@ class Function(Callable):
 
     def __str__(self):
         return f"<fun {self.declaration.name.lexeme}>"
+
+
+class Class:
+    def __init__(self, name: str):
+        self.name = name
+
+    def __str__(self):
+        return self.name

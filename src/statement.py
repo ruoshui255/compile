@@ -6,6 +6,15 @@ class StmtBlock:
         return visitor.visit_stmt_block(self)
 
 
+class StmtClass:
+    def __init__(self, name, methods):
+        self.name = name
+        self.methods = methods
+
+    def accept(self, visitor):
+        return visitor.visit_stmt_class(self)
+
+
 class StmtExpression:
     def __init__(self, expression):
         self.expression = expression

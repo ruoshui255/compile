@@ -87,6 +87,11 @@ class Resolver:
         self.define(stmt.name)
         return None
 
+    def visit_stmt_class(self, stmt: StmtClass):
+        self.declare(stmt.name)
+        self.define(stmt.name)
+        return None
+
     def visit_stmt_block(self, stmt: StmtBlock):
         self.begin_scope()
         self.resolve(stmt.statements)
