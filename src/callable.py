@@ -6,8 +6,6 @@ from src.statement import StmtFunction
 
 
 class Callable:
-    def __init__(self):
-        pass
 
     def arity(self):
         pass
@@ -53,9 +51,25 @@ class Function(Callable):
         return f"<fun {self.declaration.name.lexeme}>"
 
 
-class Class:
+class Class(Callable):
     def __init__(self, name: str):
         self.name = name
 
+    def arity(self):
+        return 0
+
+    def call(self, interpreter, arguments):
+        instance = Instance(self)
+        return instance
+
     def __str__(self):
         return self.name
+
+
+class Instance:
+    def __init__(self, klass: Class):
+        self.klass = klass
+
+    def __str__(self):
+        return f"{self.klass.name} instance"
+
