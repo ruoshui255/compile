@@ -116,6 +116,10 @@ class Resolver:
         self.resolve(expr.right)
         return None
 
+    def visit_expr_get(self, expr: ExprGet):
+        self.resolve(expr.object)
+        return None
+
     def visit_expr_call(self, expr: ExprCall):
         self.resolve(expr.callee)
 
@@ -129,6 +133,11 @@ class Resolver:
         return None
 
     def visit_expr_literal(self, expr: ExprLiteral):
+        return None
+
+    def visit_expr_set(self, expr: ExprSet):
+        self.resolve(expr.value)
+        self.resolve(expr.object)
         return None
 
     def visit_expr_logical(self, expr: ExprLogical):

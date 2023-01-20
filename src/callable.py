@@ -1,8 +1,9 @@
 import time
 
 from src.environment import Environment
-from src.runtime_error import Return
+from src.runtime_error import Return, RuntimeException
 from src.statement import StmtFunction
+from src.token import Token
 
 
 class Callable:
@@ -69,6 +70,16 @@ class Class(Callable):
 class Instance:
     def __init__(self, klass: Class):
         self.klass = klass
+        self.fields = {}
+
+    def set(self, name: Token, value):
+        self.fields[name.lexeme] = value
+
+    def get(self, name: Token):
+        if name.lexeme in self.fields:
+            return self.fields.get(name.lexeme)
+
+        raise RuntimeException(name, f"Undefined property '{name.lexeme}'.")
 
     def __str__(self):
         return f"{self.klass.name} instance"

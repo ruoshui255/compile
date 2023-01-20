@@ -1,8 +1,8 @@
-from src.callable import Callable, Clock, Function, Class
+from src.callable import Callable, Clock, Function, Class, Instance
 from src.environment import Environment
-from src.expr import ExprUnary, ExprLiteral, ExprBinary, ExprGrouping, ExprAssign, ExprLogical, ExprCall, ExprVariable
+from src.expr import *
 from src.runtime_error import RuntimeException, Return
-from src.statement import StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn, StmtClass
+from src.statement import *
 from src.token import TokenType, Token
 from src.utils import log, log_error
 
@@ -129,6 +129,16 @@ class Interpreter:
     def visit_expr_variable(self, expr: ExprVariable):
         return self.lookup_variable(expr.name, expr)
 
+    def visit_expr_set(self, expr: ExprSet):
+        obj = self.evaluate(expr.object)
+
+        if not isinstance(obj, Instance):
+            raise RuntimeException(expr.name, "Only instances have fields.")
+
+        value = self.evaluate(expr.value)
+        obj.set(expr.name, value)
+        return value
+
     def visit_expr_logical(self, expr: ExprLogical):
         left = self.evaluate(expr.left)
 
@@ -144,6 +154,14 @@ class Interpreter:
                 return self.evaluate(expr.right)
         else:
             log_error("Error operator:", expr.operator)
+
+    # visit object properties
+    def visit_expr_get(self, expr: ExprGet):
+        obj = self.evaluate(expr.object)
+        if isinstance(obj, Instance):
+            return obj.get(expr.name)
+
+        raise RuntimeException(expr.name, "Only instances have properties.")
 
     def visit_expr_call(self, expr: ExprCall):
         callee = self.evaluate(expr.callee)

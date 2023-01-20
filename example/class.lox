@@ -4,4 +4,6 @@ class DevonshireCream {
   }
 }
 
-print(DevonshireCream); // Prints "DevonshireCream".
+var t = DevonshireCream();
+t.name = "water";
+print(t.name); // Prints "water".

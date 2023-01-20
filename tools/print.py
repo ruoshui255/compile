@@ -42,9 +42,11 @@ def main():
         "Expr Assign   : name, value",
         "Expr Binary   : left, operator, right",
         "Expr Call     : callee, paren, arguments",
+        "Expr Get      : object, name",
         "Expr Grouping : expression",
         "Expr Literal  : value",
         "Expr Logical  : left, operator, right",
+        "Expr Set      : object, name, value",
         "Expr Unary    : operator, right",
         "Expr Variable : name"
     ])

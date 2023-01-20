@@ -6,6 +6,7 @@ class RuntimeException(Exception):
         super().__init__(msg)
         self.token = token
 
+
 class Return(RuntimeError):
     def __init__(self, value):
         super().__init__("")

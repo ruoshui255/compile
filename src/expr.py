@@ -27,6 +27,15 @@ class ExprCall:
         return visitor.visit_expr_call(self)
 
 
+class ExprGet:
+    def __init__(self, object, name):
+        self.object = object
+        self.name = name
+
+    def accept(self, visitor):
+        return visitor.visit_expr_get(self)
+
+
 class ExprGrouping:
     def __init__(self, expression):
         self.expression = expression
@@ -51,6 +60,16 @@ class ExprLogical:
 
     def accept(self, visitor):
         return visitor.visit_expr_logical(self)
+
+
+class ExprSet:
+    def __init__(self, object, name, value):
+        self.object = object
+        self.name = name
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visit_expr_set(self)
 
 
 class ExprUnary:

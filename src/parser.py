@@ -216,6 +216,10 @@ class Parser:
             if isinstance(expr, ExprVariable):
                 name: Token = expr.name
                 return ExprAssign(name, value)
+            elif isinstance(expr, ExprGet):
+                # expr_get have a higher priority than expr_set,
+                # so we convert to expr_set
+                return ExprSet(expr.object, expr.name, value)
 
             self.report_error(equals, "Invalid assignment target.")
 
@@ -275,6 +279,9 @@ class Parser:
         while True:
             if self.match(TokenType.LEFT_PAREN):
                 expr = self.finish_call(expr)
+            elif self.match(TokenType.DOT):
+                name = self.consume(TokenType.IDENTIFIER, "Expect property name after '.'.")
+                expr = ExprGet(expr, name)
             else:
                 break
         return expr
