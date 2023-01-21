@@ -113,6 +113,12 @@ class Resolver:
         if stmt.superclass is not None:
             self.resolve(stmt.superclass)
 
+        # super class closure
+        if stmt.superclass is not None:
+            self.begin_scope()
+            scope = self.scopes[-1]
+            scope["super"] = True
+
         self.begin_scope()
         top = self.scopes[-1]
         top["this"] = True
@@ -125,6 +131,9 @@ class Resolver:
             self.resolve_function(method, declaration)
 
         self.end_scope()
+
+        if stmt.superclass is not None:
+            self.end_scope()
 
         self.class_current = class_enclosing
         return None
@@ -177,6 +186,10 @@ class Resolver:
             self.report_error(expr.keyword, "Can't user 'this' outside of a class")
             return None
 
+        self.resolve_local(expr, expr.keyword)
+        return None
+
+    def visit_expr_super(self, expr: ExprSuper):
         self.resolve_local(expr, expr.keyword)
         return None
 

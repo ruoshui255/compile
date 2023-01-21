@@ -321,6 +321,11 @@ class Parser:
                 return ExprLiteral(None)
             case TokenType.NUMBER | TokenType.STRING:
                 return ExprLiteral(self.previous().literal)
+            case TokenType.SUPER:
+                keyword = self.previous()
+                self.consume(TokenType.DOT, "Expect '.' after 'super'.")
+                method = self.consume(TokenType.IDENTIFIER, "Expect superclass method name.")
+                return ExprSuper(keyword, method)
             case TokenType.LEFT_PAREN:
                 expr = self.expression()
                 self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")

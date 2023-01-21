@@ -4,6 +4,13 @@ class Parent {
   }
 }
 
-class Child < Parent {}
+class Child < Parent {
+  cook() {
+    super.cook();
+    print "child method";
+  }
+}
+
+}
 
 Child().cook();

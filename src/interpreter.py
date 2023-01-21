@@ -53,12 +53,21 @@ class Interpreter:
 
         self.environment.define(stmt.name.lexeme, None)
 
+        # super class
+        if stmt.superclass is not None:
+            self.environment = Environment(self.environment)
+            self.environment.define("super", superclass)
+
         methods = {}
         for method in stmt.methods:
             function = Function(method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = function
 
         klass = Class(stmt.name.lexeme, superclass, methods)
+
+        if superclass is not None:
+            self.environment = self.environment.enclosing
+
         self.environment.assign(stmt.name, klass)
         return None
 
@@ -144,6 +153,15 @@ class Interpreter:
     def visit_expr_this(self, expr: ExprThis):
         return self.lookup_variable(expr.keyword, expr)
         pass
+
+    def visit_expr_super(self, expr: ExprSuper):
+        distance = self.locals.get(expr)
+        superclass: Class = self.environment.get_at(distance, "super")
+
+        obj = self.environment.get_at(distance - 1, "this")
+
+        method = superclass.find_method(expr.method.lexeme)
+        return method.bind(obj)
 
     def visit_expr_set(self, expr: ExprSet):
         obj = self.evaluate(expr.object)

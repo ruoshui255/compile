@@ -72,6 +72,15 @@ class ExprSet:
         return visitor.visit_expr_set(self)
 
 
+class ExprSuper:
+    def __init__(self, keyword, method):
+        self.keyword = keyword
+        self.method = method
+
+    def accept(self, visitor):
+        return visitor.visit_expr_super(self)
+
+
 class ExprThis:
     def __init__(self, keyword):
         self.keyword = keyword
