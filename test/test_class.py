@@ -4,10 +4,12 @@ from contextlib import redirect_stdout
 from src.main import Lox
 
 
-def test_block():
+def test_class():
     test_cases = [
-        ("./example/class.lox",
-         ("Jane", "Hello", "123"))
+        ("./example/class1.lox",
+         ("Jane", "Hello", "123")),
+        ("./example/class2.lox",
+         ("Foo instance", "1", "2", "4", "Foo instance", "nil", "2", "3", "5"))
     ]
 
     lox = Lox()
@@ -25,7 +27,7 @@ def test_block():
 
 
 def main():
-    test_block()
+    test_class()
 
 
 if __name__ == '__main__':

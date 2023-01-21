@@ -1,0 +1,18 @@
+class Foo {
+  init(a, b, c) {
+    this.a = a;
+    this.b = b;
+    this.c = c + 1;
+    print(this);
+  }
+  log() {
+    print(this.a);
+    print(this.b);
+    print(this.c);
+  }
+}
+
+var foo = Foo(1, 2, 3);
+foo.log();
+print(foo.init(2, 3, 4));
+foo.log();

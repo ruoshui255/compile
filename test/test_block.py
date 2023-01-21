@@ -4,14 +4,14 @@ from contextlib import redirect_stdout
 from src.main import Lox
 
 
-def test_block():
+def test():
     test_cases = [
         ("var a = 100; a = 200; print(a);",
-         "200.0\n"),
+         "200\n"),
         ("var a = 100; var b = 200; { b= 300;} print(b);",
-         "300.0\n"),
+         "300\n"),
         ("var a = 100; var b = 200; { var b= 255;print(b);} ",
-         "255.0\n"),
+         "255\n"),
     ]
 
     lox = Lox()
@@ -25,7 +25,7 @@ def test_block():
 
 
 def main():
-    test_block()
+    test()
 
 
 if __name__ == '__main__':

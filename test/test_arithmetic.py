@@ -19,7 +19,7 @@ def helper(res: str):
             exit(-1)
 
 
-def test_arithmetic():
+def test():
 
     test_cases = [
         ("1.0 + 2", 3),
@@ -41,7 +41,7 @@ def test_arithmetic():
 
 
 def main():
-    test_arithmetic()
+    test()
 
 
 if __name__ == '__main__':

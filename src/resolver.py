@@ -9,6 +9,7 @@ from src.utils import error_compiler
 class FunctionType(Enum):
     NULL = auto()
     Function = auto()
+    Initializer = auto()
     Method = auto
 
 
@@ -78,6 +79,8 @@ class Resolver:
             self.report_error(stmt.keyword, "Can't return from top-level code.")
 
         if stmt.value is not None:
+            if self.function_current == FunctionType.Initializer:
+                self.report_error(stmt.keyword, "Can't return a value from an initializer.")
             self.resolve(stmt.value)
         return None
 
@@ -107,6 +110,9 @@ class Resolver:
 
         for method in stmt.methods:
             declaration = FunctionType.Method
+            if method.name.lexeme == "init":
+                declaration = FunctionType.Initializer
+
             self.resolve_function(method, declaration)
 
         self.end_scope()

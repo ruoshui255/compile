@@ -28,8 +28,9 @@ class Clock(Callable):
 
 
 class Function(Callable):
-    def __init__(self, declaration: StmtFunction, closure: Environment):
+    def __init__(self, declaration: StmtFunction, closure: Environment, initialized: bool):
         super().__init__()
+        self.initialized: bool = initialized
         self.declaration = declaration
         self.closure = closure
 
@@ -44,6 +45,8 @@ class Function(Callable):
         try:
             interpreter.execute_block(self.declaration.body, environment)
         except Return as e:
+            if self.initialized:
+                return self.closure.get_at(0, "this")
             return e.value
 
         return None
@@ -51,7 +54,7 @@ class Function(Callable):
     def bind(self, instance):
         environment = Environment(self.closure)
         environment.define("this", instance)
-        return Function(self.declaration, environment)
+        return Function(self.declaration, environment, self.initialized)
 
     def __str__(self):
         return f"<fun {self.declaration.name.lexeme}>"
@@ -63,10 +66,19 @@ class Class(Callable):
         self.methods = methods
 
     def arity(self):
-        return 0
+        initializer = self.find_method("init")
+        if initializer is None:
+            return 0
+        else:
+            return initializer.arity()
 
     def call(self, interpreter, arguments):
         instance = Instance(self)
+
+        initializer = self.find_method("init")
+        if initializer is not None:
+            initializer.bind(instance).call(interpreter, arguments)
+
         return instance
 
     def find_method(self, name: str):

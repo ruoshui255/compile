@@ -8,11 +8,11 @@ def test_control_flow():
 
     test_cases = [
         ("var a = 100; if(a){print(a);} else print(123);",
-         "100.0\n"),
+         "100\n"),
         ("var a = 100; if(nil){print(a);} else print(123);",
-         "123.0\n"),
+         "123\n"),
         ("var a = 200; var b = 0; for(var a = 1; a < 11; a = a+1){ b = b+a;} print(b); print(a); ",
-         "55.0\n200.0\n"),
+         "55\n200\n"),
     ]
 
     lox = Lox()

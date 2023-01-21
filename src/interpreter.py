@@ -49,7 +49,7 @@ class Interpreter:
 
         methods = {}
         for method in stmt.methods:
-            function = Function(method, self.environment)
+            function = Function(method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = function
 
         klass = Class(stmt.name.lexeme, methods)
@@ -69,7 +69,7 @@ class Interpreter:
         return
 
     def visit_stmt_function(self, stmt: StmtFunction):
-        function = Function(stmt, self.environment)
+        function = Function(stmt, self.environment, False)
         self.environment.define(stmt.name.lexeme, function)
         return None
 
@@ -186,7 +186,7 @@ class Interpreter:
         function: Callable = callee
         if len(arguments) != function.arity():
             raise RuntimeException(expr.paren,
-                                   "Expected " + function.arity() + " arguments but got " + len(arguments) + ".")
+                                   f"Expected {function.arity()} arguments but got {len(arguments)} .")
 
         return function.call(self, arguments)
 
@@ -271,6 +271,9 @@ class Interpreter:
     def to_string(value):
         if value is None:
             return "nil"
+        elif str(value).endswith(".0"):
+            res = str(value)[:-2]
+            return res
         else:
             return str(value)
 

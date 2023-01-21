@@ -4,15 +4,15 @@ from contextlib import redirect_stdout
 from src.main import Lox
 
 
-def test_block():
+def test():
     test_cases = [
         ("./example/block.lox",
          ("inner a", "outer b", "global c", "outer a", "outer b", "global c", "global a", "global b", "global c")),
         ("./example/closure.lox",
-         ("1.0", "2.0")),
+         ("1", "2")),
         ("./example/return.lox",
-         ("0.0", "1.0", "1.0", "2.0", "3.0", "5.0", "8.0", "13.0", "21.0", "34.0", "55.0", "89.0", "144.0", "233.0",
-          "377.0", "610.0", "987.0", "1597.0", "2584.0", "4181.0")),
+         ("0", "1", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89", "144", "233",
+          "377", "610", "987", "1597", "2584", "4181")),
     ]
 
     lox = Lox()
@@ -30,7 +30,7 @@ def test_block():
 
 
 def main():
-    test_block()
+    test()
 
 
 if __name__ == '__main__':

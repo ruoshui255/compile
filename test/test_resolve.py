@@ -4,7 +4,7 @@ from contextlib import redirect_stdout
 from src.main import Lox
 
 
-def test_block():
+def test():
     test_cases = [
         ("./example/resolve.lox",
          ("global", "global"))
@@ -25,7 +25,7 @@ def test_block():
 
 
 def main():
-    test_block()
+    test()
 
 
 if __name__ == '__main__':
