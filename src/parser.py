@@ -1,8 +1,7 @@
 import sys
 
 from src.expr import *
-from src.statement import StmtExpression, StmtPrint, StmtVar, StmtBlock, StmtIf, StmtWhile, StmtFunction, StmtReturn, \
-    StmtClass
+from src.statement import *
 from src.token import TokenType, Token
 from src.utils import error_compiler, log_error, log
 
@@ -309,6 +308,8 @@ class Parser:
                 return ExprLiteral(False)
             case TokenType.TRUE:
                 return ExprLiteral(True)
+            case TokenType.THIS:
+                return ExprThis(self.previous())
             case TokenType.NIL:
                 return ExprLiteral(None)
             case TokenType.NUMBER | TokenType.STRING:

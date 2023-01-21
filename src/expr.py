@@ -72,6 +72,14 @@ class ExprSet:
         return visitor.visit_expr_set(self)
 
 
+class ExprThis:
+    def __init__(self, keyword):
+        self.keyword = keyword
+
+    def accept(self, visitor):
+        return visitor.visit_expr_this(self)
+
+
 class ExprUnary:
     def __init__(self, operator, right):
         self.operator = operator

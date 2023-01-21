@@ -12,11 +12,17 @@ class FunctionType(Enum):
     Method = auto
 
 
+class ClassType(Enum):
+    NULL = auto()
+    Class = auto()
+
+
 class Resolver:
     def __init__(self, interpreter):
         self.interpreter = interpreter
         self.scopes: list[dict] = []
-        self.current_function = FunctionType.NULL
+        self.class_current = ClassType.NULL
+        self.function_current = FunctionType.NULL
 
         self.error = False
 
@@ -37,8 +43,8 @@ class Resolver:
                 return
 
     def resolve_function(self, function: StmtFunction, type: FunctionType):
-        closing_function = self.current_function
-        self.current_function = type
+        function_closing = self.function_current
+        self.function_current = type
 
         self.begin_scope()
         for param in function.params:
@@ -48,7 +54,7 @@ class Resolver:
         self.resolve(function.body)
         self.end_scope()
 
-        self.current_function = closing_function
+        self.function_current = function_closing
 
     def visit_stmt_expression(self, stmt: StmtExpression):
         self.resolve(stmt.expression)
@@ -68,7 +74,7 @@ class Resolver:
         return None
 
     def visit_stmt_return(self, stmt: StmtReturn):
-        if self.current_function == FunctionType.NULL:
+        if self.function_current == FunctionType.NULL:
             self.report_error(stmt.keyword, "Can't return from top-level code.")
 
         if stmt.value is not None:
@@ -89,13 +95,23 @@ class Resolver:
         return None
 
     def visit_stmt_class(self, stmt: StmtClass):
+        class_enclosing = self.class_current
+        self.class_current = ClassType.Class
+
         self.declare(stmt.name)
         self.define(stmt.name)
+
+        self.begin_scope()
+        top = self.scopes[-1]
+        top["this"] = True
 
         for method in stmt.methods:
             declaration = FunctionType.Method
             self.resolve_function(method, declaration)
 
+        self.end_scope()
+
+        self.class_current = class_enclosing
         return None
 
     def visit_stmt_block(self, stmt: StmtBlock):
@@ -139,6 +155,14 @@ class Resolver:
         return None
 
     def visit_expr_literal(self, expr: ExprLiteral):
+        return None
+
+    def visit_expr_this(self, expr: ExprThis):
+        if self.class_current == ClassType.NULL:
+            self.report_error(expr.keyword, "Can't user 'this' outside of a class")
+            return None
+
+        self.resolve_local(expr, expr.keyword)
         return None
 
     def visit_expr_set(self, expr: ExprSet):

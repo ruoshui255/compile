@@ -135,6 +135,10 @@ class Interpreter:
     def visit_expr_variable(self, expr: ExprVariable):
         return self.lookup_variable(expr.name, expr)
 
+    def visit_expr_this(self, expr: ExprThis):
+        return self.lookup_variable(expr.keyword, expr)
+        pass
+
     def visit_expr_set(self, expr: ExprSet):
         obj = self.evaluate(expr.object)
 

@@ -47,6 +47,7 @@ def main():
         "Expr Literal  : value",
         "Expr Logical  : left, operator, right",
         "Expr Set      : object, name, value",
+        "Expr This     : keyword",
         "Expr Unary    : operator, right",
         "Expr Variable : name"
     ])
