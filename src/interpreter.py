@@ -45,6 +45,12 @@ class Interpreter:
             self.environment = previous
 
     def visit_stmt_class(self, stmt: StmtClass):
+        superclass = None
+        if stmt.superclass is not None:
+            superclass = self.evaluate(stmt.superclass)
+            if not isinstance(superclass, Class):
+                raise RuntimeException(stmt.superclass.name, "Superclass must be a class")
+
         self.environment.define(stmt.name.lexeme, None)
 
         methods = {}
@@ -52,7 +58,7 @@ class Interpreter:
             function = Function(method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = function
 
-        klass = Class(stmt.name.lexeme, methods)
+        klass = Class(stmt.name.lexeme, superclass, methods)
         self.environment.assign(stmt.name, klass)
         return None
 

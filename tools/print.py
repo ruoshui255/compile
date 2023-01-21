@@ -54,7 +54,7 @@ def main():
 
     define_AST(output_folder, "src/statement.py", [
         "Stmt Block      : statements",
-        "Stmt Class      : name, methods",
+        "Stmt Class      : name, superclass, methods",
         "Stmt Expression : expression",
         "Stmt Function   : name, params, body",
         "Stmt If         : condition, then_branch, else_branch",

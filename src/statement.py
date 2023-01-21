@@ -7,8 +7,9 @@ class StmtBlock:
 
 
 class StmtClass:
-    def __init__(self, name, methods):
+    def __init__(self, name, superclass, methods):
         self.name = name
+        self.superclass = superclass
         self.methods = methods
 
     def accept(self, visitor):

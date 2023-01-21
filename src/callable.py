@@ -61,8 +61,9 @@ class Function(Callable):
 
 
 class Class(Callable):
-    def __init__(self, name: str, methods: dict[str, Function]):
+    def __init__(self, name: str, superclass, methods: dict[str, Function]):
         self.name = name
+        self.superclass: Class = superclass
         self.methods = methods
 
     def arity(self):
@@ -82,8 +83,13 @@ class Class(Callable):
         return instance
 
     def find_method(self, name: str):
-        res = self.methods.get(name, None)
-        return res
+        if name in self.methods.keys():
+            return self.methods.get(name)
+
+        if self.superclass is not None:
+            return self.superclass.find_method(name)
+
+        return None
 
     def __str__(self):
         return self.name

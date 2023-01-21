@@ -104,6 +104,15 @@ class Resolver:
         self.declare(stmt.name)
         self.define(stmt.name)
 
+        # prevent input case: class Foo < Foo {}
+        # That causes a circular reference
+        class_name = stmt.name.lexeme
+        if (stmt.superclass is not None) and (class_name == stmt.superclass.name.lexeme):
+            self.report_error(stmt.superclass.name, "A class can't inherit from itself.")
+
+        if stmt.superclass is not None:
+            self.resolve(stmt.superclass)
+
         self.begin_scope()
         top = self.scopes[-1]
         top["this"] = True
