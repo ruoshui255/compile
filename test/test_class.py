@@ -9,7 +9,14 @@ def test_class():
         ("./example/class1.lox",
          ("Jane", "Hello", "123")),
         ("./example/class2.lox",
-         ("Foo instance", "1", "2", "4", "Foo instance", "nil", "2", "3", "5"))
+         ("Foo instance", "1", "2", "4", "Foo instance", "nil", "2", "3", "5")),
+        ("./example/class3.lox",
+         ("parent method", "child method")),
+        ("./example/class4.lox",
+         ("A method",)),
+        ("./example/class5.lox",
+         ("[line 3] Error at 'super' : Can't use 'super' in a class with no superclass.",
+          "[line 9] Error at 'super' : Can't use 'super' outside of a class."))
     ]
 
     lox = Lox()

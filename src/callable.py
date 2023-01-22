@@ -1,9 +1,13 @@
 import time
+from typing import TYPE_CHECKING
 
 from src.environment import Environment
 from src.runtime_error import Return, RuntimeException
 from src.statement import StmtFunction
 from src.token import Token
+
+if TYPE_CHECKING:
+    from src.interpreter import Interpreter
 
 
 class Callable:
@@ -11,7 +15,7 @@ class Callable:
     def arity(self):
         pass
 
-    def call(self, interpreter, arguments):
+    def call(self, interpreter: 'Interpreter', arguments):
         pass
 
 
@@ -37,7 +41,7 @@ class Function(Callable):
     def arity(self):
         return len(self.declaration.params)
 
-    def call(self, interpreter, arguments):
+    def call(self, interpreter: 'Interpreter', arguments):
         environment = Environment(self.closure)
         for index, arg in enumerate(self.declaration.params):
             environment.define(arg.lexeme, arguments[index])

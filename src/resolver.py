@@ -1,9 +1,12 @@
 from enum import Enum, auto
+from typing import TYPE_CHECKING
 
 from src.expr import *
 from src.statement import *
 from src.token import Token
 from src.utils import error_compiler
+if TYPE_CHECKING:
+    from src.interpreter import Interpreter
 
 
 class FunctionType(Enum):
@@ -16,16 +19,17 @@ class FunctionType(Enum):
 class ClassType(Enum):
     NULL = auto()
     Class = auto()
+    SubClass = auto()
 
 
 class Resolver:
-    def __init__(self, interpreter):
+    def __init__(self, interpreter: 'Interpreter'):
         self.interpreter = interpreter
         self.scopes: list[dict] = []
-        self.class_current = ClassType.NULL
-        self.function_current = FunctionType.NULL
+        self.class_current: ClassType = ClassType.NULL
+        self.function_current: ClassType = FunctionType.NULL
 
-        self.error = False
+        self.error: bool = False
 
     # t may be stmts or stmt or expr, but python doesn't care
     def resolve(self, t):
@@ -111,6 +115,7 @@ class Resolver:
             self.report_error(stmt.superclass.name, "A class can't inherit from itself.")
 
         if stmt.superclass is not None:
+            self.class_current = ClassType.SubClass
             self.resolve(stmt.superclass)
 
         # super class closure
@@ -190,6 +195,11 @@ class Resolver:
         return None
 
     def visit_expr_super(self, expr: ExprSuper):
+        if self.class_current == ClassType.NULL:
+            self.report_error(expr.keyword, "Can't use 'super' outside of a class.")
+        elif self.class_current != ClassType.SubClass:
+            self.report_error(expr.keyword, "Can't use 'super' in a class with no superclass.")
+
         self.resolve_local(expr, expr.keyword)
         return None
 
@@ -236,6 +246,6 @@ class Resolver:
         scope = self.scopes[-1]
         scope[name.lexeme] = True
 
-    def report_error(self, t, msg):
+    def report_error(self, t: any, msg: str):
         self.error = True
         error_compiler(t, msg)

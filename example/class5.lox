@@ -1,0 +1,11 @@
+class Foo {
+  cook() {
+    super.cook();
+    print("123");
+  }
+}
+
+Foo().cook();
+super.notEvenInClass();
+// [line 3] Error at 'super' : Can't use 'super' in a class with no superclass.
+// [line 9] Error at 'super' : Can't use 'super' outside of a class.

@@ -7,10 +7,8 @@ class Parent {
 class Child < Parent {
   cook() {
     super.cook();
-    print "child method";
+    print("child method");
   }
-}
-
 }
 
 Child().cook();
