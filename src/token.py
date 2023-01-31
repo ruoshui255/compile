@@ -30,6 +30,7 @@ class TokenType(Enum):
     NUMBER = auto()
 
     # Keywords.
+    ENUM = auto()
     AND = auto()
     CLASS = auto()
     ELSE = auto()
@@ -51,6 +52,7 @@ class TokenType(Enum):
 
 
 keywords = {
+        "enum": TokenType.ENUM,
         "and": TokenType.AND,
         "class": TokenType.CLASS,
         "else": TokenType.ELSE,

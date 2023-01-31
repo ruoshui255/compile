@@ -93,6 +93,11 @@ class Resolver:
         self.resolve(stmt.body)
         return None
 
+    def visit_stmt_enum(self, stmt: StmtEnum):
+        for t in stmt.bodies:
+            self.declare(t)
+            self.define(t)
+
     def visit_stmt_var(self, stmt: StmtVar):
         self.declare(stmt.name)
         if stmt.initializer is not None:

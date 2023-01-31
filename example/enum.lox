@@ -1,0 +1,10 @@
+enum {
+ red, blue, yellow
+}
+
+var a = red;
+{
+    enum {red, blue, yellow}
+    var b = red;
+    print(a==b); // False
+}

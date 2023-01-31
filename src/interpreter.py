@@ -75,6 +75,11 @@ class Interpreter:
         self.execute_block(stmt.statements, Environment(self.environment))
         return
 
+    def visit_stmt_enum(self, stmt:StmtEnum):
+        for t in stmt.bodies:
+            self.environment.define(t.lexeme, f"enum_{str(hash(self.environment))}_{t.lexeme}")
+            # self.environment.define(t.lexeme, f"enum_{t.lexeme}")
+
     def visit_stmt_if(self, stmt: StmtIf):
         if self.truthy(self.evaluate(stmt.condition)):
             self.execute(stmt.then_branch)
@@ -100,7 +105,10 @@ class Interpreter:
 
     def visit_stmt_print(self, stmt):
         value = self.evaluate(stmt.expression)
-        print(self.to_string(value))
+        if isinstance(value, str) and value.startswith("enum_"):
+            print("enum")
+        else:
+            print(self.to_string(value))
 
     def visit_stmt_while(self, stmt: StmtWhile):
         while self.truthy(self.evaluate(stmt.condition)):
@@ -249,7 +257,7 @@ class Interpreter:
                 return left <= right
             case TokenType.BANG_EQUAL:
                 return not self.equal(left, right)
-            case TokenType.BANG:
+            case TokenType.EQUAL_EQUAL:
                 return self.equal(left, right)
             case _:
                 log_error(f"not yet implement in binary: {expr.operator}")

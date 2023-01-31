@@ -28,6 +28,8 @@ class Parser:
                 return self.function_statement("function")
             elif self.match(TokenType.VAR):
                 return self.var_declaration()
+            elif self.match(TokenType.ENUM):
+                return self.enum_statement()
             else:
                 return self.statement()
         except ParseError as e:
@@ -128,6 +130,18 @@ class Parser:
 
         body = self.statement()
         return StmtWhile(condition, body)
+
+    def enum_statement(self):
+        self.consume(TokenType.LEFT_BRACE, "Expect '{' after enum statement.")
+        body = []
+        body.append(self.consume(TokenType.IDENTIFIER, "Expect enum variable"))
+
+        while self.match(TokenType.COMMA):
+            body.append(self.consume(TokenType.IDENTIFIER, "Expect enum variable"))
+
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after enum statement.")
+
+        return StmtEnum(body)
 
     def if_statement(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after if.")

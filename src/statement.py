@@ -1,3 +1,11 @@
+class StmtEnum:
+    def __init__(self, bodies):
+        self.bodies = bodies
+
+    def accept(self, visitor):
+        return visitor.visit_stmt_enum(self)
+
+
 class StmtBlock:
     def __init__(self, statements):
         self.statements = statements
