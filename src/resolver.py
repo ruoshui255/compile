@@ -188,7 +188,7 @@ class Resolver:
 
     def visit_expr_this(self, expr: ExprThis):
         if self.class_current == ClassType.NULL:
-            self.report_error(expr.keyword, "Can't user 'this' outside of a class")
+            self.report_error(expr.keyword, "Can't use 'this' outside of a class")
             return None
 
         self.resolve_local(expr, expr.keyword)

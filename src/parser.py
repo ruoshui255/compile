@@ -254,6 +254,13 @@ class Parser:
     def term(self):
         expr = self.factor()
 
+        # https://blog.csdn.net/sgzwiz/article/details/7426448
+        # 右结合
+        # if self.match(TokenType.MINUS, TokenType.PLUS):
+        #     operator = self.previous()
+        #     right = self.term()
+        #     expr = ExprBinary(expr, operator, right)
+
         while self.match(TokenType.MINUS, TokenType.PLUS):
             operator = self.previous()
             right = self.factor()
