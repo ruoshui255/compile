@@ -6,7 +6,7 @@
 
 ## 运行
 
-- 安装 python3.8 及以上版本
+- 安装 python3.10 及以上版本
 
 - windows
   - 在目录下直接运行 `windows_run.bat` 即可进入交互式解释器模式
