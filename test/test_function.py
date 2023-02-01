@@ -6,11 +6,11 @@ from src.main import Lox
 
 def test():
     test_cases = [
-        ("./example/block.lox",
+        ("./test/cases/block.txt",
          ("inner a", "outer b", "global c", "outer a", "outer b", "global c", "global a", "global b", "global c")),
-        ("./example/closure.lox",
+        ("./test/cases/closure.txt",
          ("1", "2")),
-        ("./example/return.lox",
+        ("./test/cases/return.txt",
          ("0", "1", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89", "144", "233",
           "377", "610", "987", "1597", "2584", "4181")),
     ]

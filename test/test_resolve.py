@@ -6,7 +6,7 @@ from src.main import Lox
 
 def test():
     test_cases = [
-        ("./example/resolve.lox",
+        ("./test/cases/resolve.txt",
          ("global", "global"))
     ]
 

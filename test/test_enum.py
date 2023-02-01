@@ -6,7 +6,7 @@ from src.main import Lox
 
 def test_class():
     test_cases = [
-        ("./example/enum.lox",
+        ("./test/cases/enum.txt",
          ("False",)),
     ]
 

@@ -126,6 +126,7 @@ class Scanner:
         self.advance()
 
         value = self.source[self.start+1:self.current-1]
+        value = value.replace("\\n", "\n")
         self.add_token(TokenType.STRING, value)
 
     def number(self):

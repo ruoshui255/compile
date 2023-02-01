@@ -6,15 +6,15 @@ from src.main import Lox
 
 def test_class():
     test_cases = [
-        ("./example/class1.lox",
+        ("./test/cases/class1.txt",
          ("Jane", "Hello", "123")),
-        ("./example/class2.lox",
+        ("./test/cases/class2.txt",
          ("Foo instance", "1", "2", "4", "Foo instance", "nil", "2", "3", "5")),
-        ("./example/class3.lox",
+        ("./test/cases/class3.txt",
          ("parent method", "child method")),
-        ("./example/class4.lox",
+        ("./test/cases/class4.txt",
          ("A method",)),
-        ("./example/class5.lox",
+        ("./test/cases/class5.txt",
          ("[line 3] Error at 'super' : Can't use 'super' in a class with no superclass.",
           "[line 9] Error at 'super' : Can't use 'super' outside of a class."))
     ]
