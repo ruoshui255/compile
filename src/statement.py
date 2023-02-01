@@ -87,3 +87,27 @@ class StmtWhile:
         return visitor.visit_stmt_while(self)
 
 
+class StmtBreak:
+    def __init__(self, t):
+        self.token = t
+
+    def accept(self, visitor):
+        return visitor.visit_stmt_break(self)
+
+
+class StmtFor:
+    def __init__(self, condition, increment, body):
+        self.condition = condition
+        self.increment = increment
+        self.body = body
+
+    def accept(self, visitor):
+        return visitor.visit_stmt_for(self)
+
+
+class StmtContinue:
+    def __init__(self, t):
+        self.token = t
+
+    def accept(self, visitor):
+        return visitor.visit_stmt_continue(self)

@@ -11,3 +11,10 @@ class Return(RuntimeError):
     def __init__(self, value):
         super().__init__("")
         self.value = value
+
+
+class WhileException(Exception):
+    def __init__(self, token):
+        super(WhileException, self).__init__("")
+        self.token = token
+

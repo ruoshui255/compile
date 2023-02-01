@@ -23,20 +23,20 @@ class Parser:
     def declaration(self):
         try:
             if self.match(TokenType.CLASS):
-                return self.class_declaration()
+                return self.declaration_class()
             if self.match(TokenType.FUN):
-                return self.function_statement("function")
+                return self.statement_function("function")
             elif self.match(TokenType.VAR):
-                return self.var_declaration()
+                return self.declaration_var()
             elif self.match(TokenType.ENUM):
-                return self.enum_statement()
+                return self.statement_enum()
             else:
                 return self.statement()
         except ParseError as e:
             self.synchronize()
             log("After Synchronize:", self.peek())
 
-    def class_declaration(self):
+    def declaration_class(self):
         name = self.consume(TokenType.IDENTIFIER, "Expect class name.")
 
         # deal with superclass
@@ -49,13 +49,13 @@ class Parser:
 
         methods : list[StmtFunction] = []
         while not self.check(TokenType.RIGHT_BRACE) and not self.at_end():
-            methods.append(self.function_statement("method"))
+            methods.append(self.statement_function("method"))
 
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' before class body.")
 
         return StmtClass(name, superclass, methods)
 
-    def var_declaration(self):
+    def declaration_var(self):
         name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
 
         initializer = None
@@ -67,34 +67,40 @@ class Parser:
 
     def statement(self):
         if self.match(TokenType.FOR):
-            return self.for_statement()
+            return self.statement_for()
 
         if self.match(TokenType.IF):
-            return self.if_statement()
+            return self.statement_if()
 
         if self.match(TokenType.PRINT):
-            return self.print_statement()
+            return self.statement_print()
 
         if self.match(TokenType.RETURN):
-            return self.return_statement()
+            return self.statement_return()
 
         if self.match(TokenType.WHILE):
-            return self.while_statement()
+            return self.statement_while()
+
+        if self.match(TokenType.CONTINUE):
+            return self.statement_continue()
+
+        if self.match(TokenType.BREAK):
+            return self.statement_break()
 
         if self.match(TokenType.LEFT_BRACE):
             return StmtBlock(self.block())
 
-        return self.expression_statement()
+        return self.statement_expression()
 
-    def for_statement(self):
+    def statement_for(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after for.")
 
         if self.match(TokenType.SEMICOLON):
             initializer = None
         elif self.match(TokenType.VAR):
-            initializer = self.var_declaration()
+            initializer = self.declaration_var()
         else:
-            initializer = self.expression_statement()
+            initializer = self.statement_expression()
 
         condition = None
         if not self.check(TokenType.SEMICOLON):
@@ -106,24 +112,32 @@ class Parser:
             increment = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after while condition.")
 
-        body = self.statement()
-
-        # { initializer
-        #         while(condition) { {body}
-        #     increment } }
-        if increment is not None:
-            body = StmtBlock([body, increment])
-
         if condition is None:
             condition = ExprLiteral(True)
-        body = StmtWhile(condition, body)
+        body = self.statement()
+
+        res = StmtFor(condition, increment, body)
 
         if initializer is not None:
-            body = StmtBlock([initializer, body])
+            res = StmtBlock([initializer, res])
+        return res
 
-        return body
+        # { initializer
+        #         while(condition) { body increment }
+        #  }
+        # if increment is not None:
+        #     body = StmtBlock([body, increment])
+        #
+        # if condition is None:
+        #     condition = ExprLiteral(True)
+        # body = StmtWhile(condition, body)
+        #
+        # if initializer is not None:
+        #     body = StmtBlock([initializer, body])
 
-    def while_statement(self):
+        # return body
+
+    def statement_while(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after while.")
         condition = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect '(' after while condition.")
@@ -131,7 +145,17 @@ class Parser:
         body = self.statement()
         return StmtWhile(condition, body)
 
-    def enum_statement(self):
+    def statement_break(self):
+        previous = self.previous()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after 'break'")
+        return StmtBreak(previous)
+
+    def statement_continue(self):
+        previous = self.previous()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after 'continue'")
+        return StmtContinue(previous)
+
+    def statement_enum(self):
         self.consume(TokenType.LEFT_BRACE, "Expect '{' after enum statement.")
         body = []
         body.append(self.consume(TokenType.IDENTIFIER, "Expect enum variable"))
@@ -143,7 +167,7 @@ class Parser:
 
         return StmtEnum(body)
 
-    def if_statement(self):
+    def statement_if(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after if.")
         condition = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
@@ -156,7 +180,7 @@ class Parser:
 
         return StmtIf(condition, then_statement, else_statement)
 
-    def return_statement(self):
+    def statement_return(self):
         keyword = self.previous()
         value = None
 
@@ -166,14 +190,14 @@ class Parser:
         self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
         return StmtReturn(keyword, value)
 
-    def print_statement(self):
+    def statement_print(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' before print")
         value = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after print")
         self.consume(TokenType.SEMICOLON, "Expect ';' after print expression")
         return StmtPrint(value)
 
-    def function_statement(self, kind: str):
+    def statement_function(self, kind: str):
         name = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
         self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
 
@@ -194,7 +218,7 @@ class Parser:
         body = self.block()
         return StmtFunction(name, parameters, body)
 
-    def expression_statement(self):
+    def statement_expression(self):
         expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value")
         return StmtExpression(expr)

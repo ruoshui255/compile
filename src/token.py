@@ -47,6 +47,8 @@ class TokenType(Enum):
     TRUE = auto()
     VAR = auto()
     WHILE = auto()
+    BREAK = auto()
+    CONTINUE = auto()
 
     EOF = auto()
 
@@ -69,6 +71,8 @@ keywords = {
         "true": TokenType.TRUE,
         "var": TokenType.VAR,
         "while": TokenType.WHILE,
+        "break": TokenType.BREAK,
+        "continue": TokenType.CONTINUE,
 }
 
 

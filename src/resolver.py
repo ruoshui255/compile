@@ -28,6 +28,7 @@ class Resolver:
         self.scopes: list[dict] = []
         self.class_current: ClassType = ClassType.NULL
         self.function_current: ClassType = FunctionType.NULL
+        self.loop_current = False
 
         self.error: bool = False
 
@@ -90,8 +91,31 @@ class Resolver:
 
     def visit_stmt_while(self, stmt: StmtWhile):
         self.resolve(stmt.condition)
+
+        self.loop_current = True
         self.resolve(stmt.body)
+        self.loop_current = False
+
         return None
+
+    def visit_stmt_for(self, stmt: StmtFor):
+        self.resolve(stmt.condition)
+        if stmt.increment is not None:
+            self.resolve(stmt.increment)
+
+        self.loop_current = True
+        self.resolve(stmt.body)
+        self.loop_current = False
+
+    def visit_stmt_break(self, stmt: StmtBreak):
+        if not self.loop_current:
+            self.report_error(stmt.token, "Can't use 'break' out of loop")
+        return
+
+    def visit_stmt_continue(self, stmt:StmtContinue):
+        if not self.loop_current:
+            self.report_error(stmt.token, "Can't use 'continue' out of loop")
+        return
 
     def visit_stmt_enum(self, stmt: StmtEnum):
         for t in stmt.bodies:

@@ -1,7 +1,7 @@
 from src.callable import Callable, Clock, Function, Class, Instance
 from src.environment import Environment
 from src.expr import *
-from src.runtime_error import RuntimeException, Return
+from src.runtime_error import *
 from src.statement import *
 from src.token import TokenType, Token
 from src.utils import log, log_error
@@ -75,7 +75,7 @@ class Interpreter:
         self.execute_block(stmt.statements, Environment(self.environment))
         return
 
-    def visit_stmt_enum(self, stmt:StmtEnum):
+    def visit_stmt_enum(self, stmt: StmtEnum):
         for t in stmt.bodies:
             self.environment.define(t.lexeme, f"enum_{str(hash(self.environment))}_{t.lexeme}")
             # self.environment.define(t.lexeme, f"enum_{t.lexeme}")
@@ -110,9 +110,42 @@ class Interpreter:
         else:
             print(self.to_string(value))
 
+    def visit_stmt_for(self, stmt: StmtFor):
+        while self.truthy(self.evaluate(stmt.condition)):
+            try:
+                self.execute(stmt.body)
+            except WhileException as e:
+                if e.token.type == TokenType.BREAK:
+                    break
+                elif e.token.type == TokenType.CONTINUE:
+                    continue
+                else:
+                    print(e.token)
+                    exit(-1)
+                    self.report_error(e)
+            finally:
+                if stmt.increment is not None:
+                    self.evaluate(stmt.increment)
+
     def visit_stmt_while(self, stmt: StmtWhile):
         while self.truthy(self.evaluate(stmt.condition)):
-            self.execute(stmt.body)
+            try:
+                self.execute(stmt.body)
+            except WhileException as e:
+                if e.token.type == TokenType.BREAK:
+                    break
+                elif e.token.type == TokenType.CONTINUE:
+                    continue
+                else:
+                    print(e.token)
+                    exit(-1)
+                    self.report_error(e)
+
+    def visit_stmt_break(self, stmt: StmtBreak):
+        raise WhileException(stmt.token)
+
+    def visit_stmt_continue(self, stmt: StmtContinue):
+        raise WhileException(stmt.token)
 
     def visit_stmt_var(self, stmt):
         value = None
