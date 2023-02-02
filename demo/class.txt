@@ -1,0 +1,34 @@
+class A {
+    init(b){
+        this.a = "water";
+        this.b = b;
+    }
+    log() {
+        print(this.b);
+    }
+
+    test() {
+        print("A test " + this.b);
+    }
+
+    method() {
+        print("A method");
+    }
+}
+
+class B < A {
+    log() {
+        print("B log " + this.a);
+    }
+
+    method() {
+        print("\ntest call super");
+        super.method();
+    }
+}
+
+
+var b = B("hello");
+b.log();    // B log water
+b.test();   // A test hello
+b.method(); // \ntest call super\nA method

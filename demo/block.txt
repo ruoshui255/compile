@@ -1,0 +1,19 @@
+enum { ColorRed, ColorBlue, ColorGreen}
+
+var a = "global";
+var color1 = ColorRed;
+
+{
+    enum { ColorRed, ColorBlue, ColorGreen}
+
+    fun showA() {
+        print(a);
+    }
+
+    showA(); // global
+    var a = "block";
+    showA(); // global
+
+    var color2 = ColorRed;
+    print(color1 == color2); // False
+}

@@ -1,17 +1,25 @@
-# python 实现的语言：
+# 基于 python 实现的编程语言
 
 - 手写递归下降处理表达式的优先级和结合性，解析变量声明、函数声明、类声明、枚举声明等语句
 - 使用静态分析手段检测代码中部分错误，运行时再类型检查
 - 使用 AST-walking 方法直接对抽象语法树进行解释执行
 
-## 运行
-
+## 使用
+ 
 - 安装 python3.10 及以上版本
-
 - windows
   - 在目录下直接运行 `windows_run.bat` 即可进入交互式解释器模式
+  - 按 `Ctrl+Z` 退出
 - Linux
-  - 在目录下直接运行 `make run` 即可进入交互式解释器模式
+  - 在目录下直接运行 `sh ./linux_run.sh` 即可进入交互式解释器模式
+  - 按 `Ctrl+D` 退出
+- 读取文件执行
+```
+# linux
+export PYTHONPATH=$(pwd)
+python3 src/main.py demo/block.txt
+```
+![](./img/运行文件.gif)
 
 ## 实现的功能
 
@@ -32,111 +40,3 @@
     - 函数是一等公民，支持闭包
   - 类声明
     - 支持继承, 多态
-
-## demos
-```
-// control flow 
-for(var i = 0; i < 10; i = i+1) {
-    if (i == 3) {
-    continue;
-    }
-
-    if (i > 6) {
-      break;
-    }
-
-    print(i);
-}
-// break;
-// continue;
-//
-// var i = 0;
-// while (i < 10) {
-//     i = i+1;
-//     if (i==3) {
-//         continue;
-//     }
-//
-//     if (i > 6) {
-//     break;
-//     }
-//     print(i);
-// }
-```
-```
-// closure
-fun makeCounter() {
-    var i = 0;
-    fun count() {
-        i = i + 1;
-        print(i);
-    }
-
-    return count;
-}
-
-var counter = makeCounter();
-counter(); // 1
-counter(); // 2
-```
-
-```
-// enum, block
-enum { ColorRed, ColorBlue, ColorGreen}
-
-var a = "global";
-var color1 = ColorRed;
-
-{
-    enum { ColorRed, ColorBlue, ColorGreen}
-
-    fun showA() {
-        print(a);
-    }
-
-    showA(); // global
-    var a = "block";
-    showA(); // global
-
-    var color2 = ColorRed;
-    print(color1 == color2); // False
-}
-```
-
-```
-// class statement
-class A {
-    init(b){
-        this.a = "water";
-        this.b = b;
-    }
-    log() {
-        print(this.b);
-    }
-
-    test() {
-        print("A test " + this.b);
-    }
-
-    method() {
-        print("A method");
-    }
-}
-
-class B < A {
-    log() {
-        print("B log " + this.a);
-    }
-
-    method() {
-        print("\ntest call super");
-        super.method();
-    }
-}
-
-
-var b = B("hello");
-b.log();    // B log water
-b.test();   // A test hello
-b.method(); // \ntest call super\nA method
-```
