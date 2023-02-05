@@ -2,10 +2,10 @@ from io import StringIO
 from contextlib import redirect_stdout
 
 from src.main import Lang
+from tests.tools import run
 
 
 def test():
-
     test_cases = [
         ("1.0 + 2", 3),
         ("3 *2.0", 6),
@@ -18,15 +18,8 @@ def test():
 
     ]
 
-    lang = Lang()
-    for case in test_cases:
-        src, expected = case
-        with redirect_stdout(StringIO()) as f:
-            lang.run(f"print({src});")
-        result = f.getvalue()
-        t = str(expected) + "\n"
-
-        assert result == t, f"src <{repr(src)}>\nres <{repr(result)}>\nexp <{repr(expected)}>"
+    run(test_cases, False, code_gen=lambda x: f"print({x});",
+        fun_handle_exp=lambda x: str(x) + "\n")
 
 
 def main():
