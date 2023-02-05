@@ -1,7 +1,7 @@
 from io import StringIO
 from contextlib import redirect_stdout
 
-from src.main import Lox
+from src.main import Lang
 
 
 def test():
@@ -15,7 +15,7 @@ def test():
           "377", "610", "987", "1597", "2584", "4181")),
     ]
 
-    lox = Lox()
+    lang = Lang()
     for case in test_cases:
         filename, data = case
         with open(filename, "r", encoding="utf-8") as f:
@@ -23,7 +23,7 @@ def test():
 
         expected = "\n".join(data) + "\n"
         with redirect_stdout(StringIO()) as f:
-            lox.run(src)
+            lang.run(src)
 
         result = f.getvalue()
         assert result == expected, f"src <{src}> res: <{result}> expect <{expected}>"

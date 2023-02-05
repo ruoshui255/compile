@@ -1,7 +1,7 @@
 from io import StringIO
 from contextlib import redirect_stdout
 
-from src.main import Lox
+from src.main import Lang
 
 
 def test():
@@ -14,11 +14,11 @@ def test():
          "255\n"),
     ]
 
-    lox = Lox()
+    lang = Lang()
     for case in test_cases:
         src, expected = case
         with redirect_stdout(StringIO()) as f:
-            lox.run(src)
+            lang.run(src)
 
         result = f.getvalue()
         assert result == expected, f"src <{src}> res: <{result}> expect <{expected}>"

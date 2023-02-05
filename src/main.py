@@ -7,7 +7,7 @@ from src.scanner import Scanner
 from src.utils import log, log_error
 
 
-class Lox:
+class Lang:
     def __init__(self):
         self.scanner = None
         self.parser = None
@@ -29,21 +29,21 @@ class Lox:
 
         if self.scanner.error:
             return
+
         if self.parser.error:
             exit(65)
+
         if self.interpreter.error:
             exit(70)
 
     def run(self, src):
         self.scanner = Scanner(src)
         tokens = self.scanner.scan_tokens()
-
         if self.scanner.error:
             return
 
         self.parser = Parser(tokens)
         statements = self.parser.parse()
-
         log(f"parser error {self.parser.error}")
         if self.parser.error:
             return
@@ -61,11 +61,11 @@ class Lox:
 
 
 def main():
-    lox = Lox()
+    lang = Lang()
     if len(sys.argv) < 2:
-        lox.run_prompt()
+        lang.run_prompt()
     elif len(sys.argv) == 2:
-        lox.run_file(sys.argv[1])
+        lang.run_file(sys.argv[1])
     else:
         log_error("file too more")
         exit(-1)

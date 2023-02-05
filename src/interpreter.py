@@ -270,9 +270,10 @@ class Interpreter:
                 self.check_number_operands(expr.operator, left, right)
                 return left * right
             case TokenType.PLUS:
-                number = isinstance(left, int) or isinstance(left, float) or isinstance(right, int) or isinstance(right,
-                                                                                                                  float)
-                string = isinstance(left, str) or isinstance(right, str)
+                number = (isinstance(left, int) or isinstance(left, float)) and \
+                         (isinstance(right, int) or isinstance(right, float))
+
+                string = isinstance(left, str) and isinstance(right, str)
                 if number or string:
                     return left + right
                 raise RuntimeException(expr.operator, "Operands must be two numbers or two strings.")
@@ -329,7 +330,7 @@ class Interpreter:
         raise RuntimeException(operator, "Operand must be a number")
 
     def report_error(self, e):
-        log_error(f"[line {e.token.line}] {e} ")
+        log_error(f"[line {e.token.line}] {e}")
         self.error = True
 
     @staticmethod

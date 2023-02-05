@@ -1,22 +1,7 @@
 from io import StringIO
 from contextlib import redirect_stdout
 
-from src.main import Lox
-
-
-def helper(res: str):
-    tmp = res.split()[0]
-
-    try:
-        return float(tmp)
-    except ValueError as e:
-        if tmp == "True":
-            return True
-        elif tmp == "False":
-            return False
-        else:
-            print(f"res: <{res}> tmp: <{tmp}> : not support")
-            exit(-1)
+from src.main import Lang
 
 
 def test():
@@ -29,15 +14,19 @@ def test():
         ("1+(3/4+1) /  (1+3)", 1.4375),
         ("------1 + (1--3)", 5),
         ("!2", False),
+        ('1+"123"', "[line 1] Operands must be two numbers or two strings.")
+
     ]
 
-    lox = Lox()
+    lang = Lang()
     for case in test_cases:
         src, expected = case
         with redirect_stdout(StringIO()) as f:
-            lox.run(f"print({src});")
+            lang.run(f"print({src});")
         result = f.getvalue()
-        assert helper(result) == expected, f"src <{src}> res: <{result}> expect <{expected}>"
+        t = str(expected) + "\n"
+
+        assert result == t, f"src <{repr(src)}>\nres <{repr(result)}>\nexp <{repr(expected)}>"
 
 
 def main():

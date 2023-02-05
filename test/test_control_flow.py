@@ -1,7 +1,7 @@
 from io import StringIO
 from contextlib import redirect_stdout
 
-from src.main import Lox
+from src.main import Lang
 
 
 def test_control_flow():
@@ -15,11 +15,11 @@ def test_control_flow():
          "55\n200\n"),
     ]
 
-    lox = Lox()
+    lang = Lang()
     for case in test_cases:
         src, expected = case
         with redirect_stdout(StringIO()) as f:
-            lox.run(src)
+            lang.run(src)
         result = f.getvalue()
         assert result == expected, f"src <{src}> res: <{result}> expect <{expected}>"
 
